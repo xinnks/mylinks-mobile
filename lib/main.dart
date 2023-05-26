@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
 
-void main() {
+import 'package:mylinks_mobile/models.dart';
+
+void main() async {
+  await dotenv.load();
   runApp(const MyApp());
 }
 
@@ -11,7 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Find Me On',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -24,13 +30,13 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const SocialLinksPage(title: 'My Links'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class SocialLinksPage extends StatefulWidget {
+  const SocialLinksPage({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -44,11 +50,12 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<SocialLinksPage> createState() => _SocialLinksPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _SocialLinksPageState extends State<SocialLinksPage> {
   int _counter = 0;
+  final List<double> timers = <double>[];
 
   void _incrementCounter() {
     setState(() {
@@ -61,6 +68,57 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  /*Future<List<dynamic>>*/ allUsers() async {
+    // This example uses the Google Books API to search for books about http.
+    // https://developers.google.com/books/docs/overview
+    final String? dbUrl = dotenv.env["DB_URL"];
+    var url = Uri.https(dbUrl.toString(), '');
+
+    // Await the http get response, then decode the json-formatted response.
+    final loopStart = Stopwatch()..start();
+    for (var i = 0; i < 10; i++) {
+      final timer = Stopwatch()..start();
+      final Map<String, List<Map<String, String>>> statements = {
+        "statements": [
+          {"q": "select * from users"},
+        ]
+      };
+      print(statements.toString());
+      var response = await http.post(url, body: convert.jsonEncode(statements));
+      timers.add(timer.elapsed.inSeconds.toDouble());
+    }
+    final double totalTime =
+        timers.reduce((value, element) => value + element).toDouble();
+    print("average time: ${totalTime / 10}");
+    print("total time: ${loopStart.elapsed}");
+    // if (response.statusCode == 200) {
+    //   var jsonResponse = convert.jsonDecode(response.body) as List<dynamic>;
+    //   // var itemCount = jsonResponse['totalItems'];
+    //   final returnedData = jsonResponse[0];
+    //   // print('Result: $jsonResponse. ++ $returnedData');
+    //   if (returnedData["error"] != null) {
+    //     final ErrorData errorRes = ErrorData.fromJson(returnedData["error"]);
+    //     print(errorRes.message);
+    //     return [];
+    //   } else {
+    //     final SuccessData successRes =
+    //         SuccessData.fromJson(returnedData["results"]);
+    //     print("rows: ${successRes.rows}");
+    //     print("columns: ${successRes.columns}");
+    //     return successRes.rows;
+    //   }
+    // } else {
+    //   print('Request failed with status: ${response.statusCode}.');
+    //   return [];
+    // }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    allUsers();
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -71,40 +129,42 @@ class _MyHomePageState extends State<MyHomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
+        // Here we take the value from the SocialLinksPage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
+      body: Center(),
+      // body: FutureBuilder<List<dynamic>>(
+      //   future: allUsers(),
+      //   builder: (context, snapshot) {
+      //     switch (snapshot.connectionState) {
+      //       case ConnectionState.none:
+      //         return Column(
+      //           children: <Widget>[ Expanded( child: Center( child: Container( child: Text("Flexing!"), ), ), )], );
+      //       case ConnectionState.active:
+      //         return Text("active");
+      //       case ConnectionState.waiting:
+      //         return Text("waiting");
+      //       case ConnectionState.done:
+      //         if (snapshot.hasError){
+      //           return Center(
+      //             child: Column(children: [Text("Something went wrong!")],),
+      //           );
+      //         }else if(snapshot.hasData){
+      //           const users = snapshot.data;
+      //           ListView.builder(
+      //             itemCount: allUsers(),
+      //             itemBuilder: (BuildContext context, int i){
+      //             return ListTile(
+      //               leading: Text(),
+      //               title: Text(),
+      //               trailing: (),
+      //             );
+      //           });
+      //         }
+      //     }
+      //     return Center();
+      // }),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',

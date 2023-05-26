@@ -1,4 +1,25 @@
 import 'dart:convert';
+
+/// success
+///[{
+//     results: {
+//         columns: [id, email, full_name, username, created_at],
+//         rows: [
+//             [1, xinnks @gmail.com, James Sinkala, xinnks, 1678713960],
+//             [2, foody @jamesinkala.com, Foody, foody, 1678714871],
+//             [3, onetwo @domain.com, One Two, onetwo, 1678716889],
+//             [4, 23 @somewhere.com, Two Three, 23, 1678717139],
+//             [5, js @dog.com, Johnn Silas, jsdog, 1678718620],
+//             [6, mlorndenzer @gmail.com, Mitch Lornden, mitlor, 1678980229],
+//             [7, swastikayadav5358 @gmail.com, Swastika, swastika0015, 1678980238],
+//             [8, someone @somemail.com, someone, someone, 1679143592]
+//         ]
+//     }
+// }]
+//
+// error
+/// [{error: {message: no such table: sometone}}]
+
 class TursoResponse {
   final dynamic response;
 
@@ -72,3 +93,12 @@ class SocialLinks {
     required this.github,
   });
 }
+
+// List<UserDetails> getUsersList(List<dynamic> columns, List<List<dynamic>> rows) {
+//   final List<UserDetails> userList = <UserDetails>[];
+//   for(const row in rows){
+//     for(const col in columns){
+//       final UserDetails user = UserDetails(id: row["$col"], email: email, fullName: fullName, username: username, createdAt: createdAt)
+//     }
+//   }
+// }

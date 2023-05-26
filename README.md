@@ -14,3 +14,11 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+Plugins:
+- [http]
+- [flutter_dotenv]
+
+
+[http]: https://pub.dev/packages/http/install
+[flutter_dotenv]: https://pub.dev/packages/flutter_dotenv
